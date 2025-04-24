@@ -1,36 +1,22 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { fetchArticleText } from '../../services/fetchArticle';
+import { summarizeText } from '../../services/summarizeText';
 
 export default async function handler(req, res) {
-  console.log("API Called");
-
   if (req.method !== 'POST') {
-    console.log("Wrong method:", req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { url } = req.body;
-    console.log("URL received:", url);
 
-    const { data } = await axios.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      }
-    });
-    console.log("HTML fetched successfully");
+    const articleText = await fetchArticleText(url);
 
-    const $ = cheerio.load(data);
-    let text = '';
-    $('p').each((i, elem) => {
-      text += $(elem).text() + ' ';
-    });
-    console.log("Extracted text length:", text.length);
+    const summary = await summarizeText(articleText.slice(0, 3000));
 
-    res.status(200).json({ text: text.slice(0, 1000) }); // تجربة مبدئية
+    res.status(200).json({ summary });
 
   } catch (err) {
-    console.error("Error details:", err.message);
-    res.status(500).json({ error: 'Failed to fetch or parse the article' });
+    console.error("Error:", err.message);
+    res.status(500).json({ error: 'Failed to process the article' });
   }
 }
