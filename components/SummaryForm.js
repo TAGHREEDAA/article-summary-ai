@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from '../styles/SummaryForm.module.css';
 
 export default function SummaryForm() {
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState('https://www.bbc.com/news/live/cvg7jnywn5dt');
   const [summary, setSummary] = useState('');
 
   const handleSubmit = async (e) => {
