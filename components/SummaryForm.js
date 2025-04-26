@@ -1,62 +1,107 @@
 import { useState } from 'react';
+import SummaryOptions from './SummaryOptions';
+import SummaryResult from './SummaryResult';
 import styles from '../styles/SummaryForm.module.css';
 
 export default function SummaryForm() {
-  const [url, setUrl] = useState('https://www.bbc.com/news/world-65249871');
-  const [summary, setSummary] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [lastUrl, setLastUrl] = useState('');
-  const [lastSummary, setLastSummary] = useState('');
+    const [url, setUrl] = useState('https://www.bbc.com/news/live/c62jldpz9wyt');
+    const [loading, setLoading] = useState(false);
+    const [lastUrl, setLastUrl] = useState('');
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [lastSelectedOptions, setLastSelectedOptions] = useState([]);
+    const [summaryData, setSummaryData] = useState({
+        summary: '',
+        keyPoints: [],
+        suggestedTitle: ''
+    });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
 
-    // prevent re-request same url summarized before
-    if (url === lastUrl && lastSummary) {
-      setSummary(lastSummary);
-      return;
-    }
+    const handleOptionChange = (e) => {
+        const value = e.target.value;
+        setSelectedOptions(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+    };
 
-    setLoading(true);
-    setSummary('');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (loading) return;
 
-    try {
-      const res = await fetch('/api/summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      setSummary(data.summary);
-      setLastUrl(url);
-      setLastSummary(data.summary);
-    } catch (err) {
-      setSummary('Failed to summarize the article.');
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (!isValidUrl(url)) {
+            alert("Please enter a valid URL.");
+            return;
+        }
 
-  return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>📰 Article Summarizer</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter article URL"
-          required
-          className={styles.input}
-        />
-        <button type="submit" className={styles.button} disabled={loading}>
-          {loading ? 'Summarizing...' : 'Summarize'}
-        </button>
-      </form>
-      <h2 className={styles.subtitle}>Summary:</h2>
-      {loading && <p>Loading summary...</p>}
-      {!loading && summary && <p className={styles.summary}>{summary}</p>}
-    </div>
-  );
+        if (selectedOptions.length === 0) {
+            alert("Please select at least one summary option.");
+            return;
+        }
+
+        // prevent re-request same url and options summarized before.
+        if (
+            url === lastUrl &&
+            JSON.stringify(selectedOptions) === JSON.stringify(lastSelectedOptions) &&
+            summaryData.summary
+        ) {
+            return; // Use cached summaryData
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await fetch('/api/summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, types: selectedOptions }),
+            });
+
+            const data = await res.json();
+            setLastUrl(url);
+            setLastSelectedOptions(selectedOptions);
+            setSummaryData(data);
+        } catch (err) {
+            console.error("Error:", err.message);
+            setSummaryData({
+                summary: 'Failed to summarize the article.',
+                keyPoints: [],
+                suggestedTitle: ''
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className={styles.container}>
+            <h1>🤖📝 Smart Article Analyzer 🚀</h1>
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <h2>Article URL <span style={{ color: 'red' }}>*</span></h2>
+                <input
+                    id="url"
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="Enter article URL"
+                    required
+                    className={styles.input}
+                />
+
+                <SummaryOptions selectedOptions={selectedOptions} onChange={handleOptionChange} />
+
+                <button type="submit" className={styles.button}
+                        disabled={loading || !isValidUrl(url) || selectedOptions.length === 0}>
+                    {loading ? 'Summarizing...' : 'Summarize'}
+                </button>
+            </form>
+
+            <SummaryResult summaryData={summaryData} loading={loading} />
+        </div>
+    );
 }
