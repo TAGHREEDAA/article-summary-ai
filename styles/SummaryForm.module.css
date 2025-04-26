@@ -6,49 +6,86 @@
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  .title {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
     font-size: 2rem;
     margin-bottom: 20px;
     color: #333;
-  }
-  
-  .form {
+}
+
+.form {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
-  }
-  
-  .input {
+}
+
+.input {
     padding: 10px;
     font-size: 1rem;
     border-radius: 4px;
     border: 1px solid #ccc;
-  }
-  
-  .button {
-    padding: 10px;
+}
+
+.button {
+    padding: 10px 20px;
     font-size: 1rem;
     background-color: #0070f3;
-    color: #fff;
+    color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  .subtitle {
+    transition: background-color 0.3s ease;
+}
+
+.button:hover:enabled {
+    background-color: #005bb5;
+}
+
+.button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.subtitle {
     font-size: 1.2rem;
     color: #444;
-  }
-  
-  .summary {
+}
+
+.summary {
     text-align: left;
     padding: 10px;
     background-color: #fff;
     border-radius: 4px;
     border: 1px solid #eee;
-  }
-  
+}
+
+.optionsContainer {
+    background-color: #f5f5f5;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    text-align: left; /* <<< المحاذاة لليسار */
+}
+
+.form h2, .optionsContainer h2 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #333;
+    text-align: left;
+}
+
+.optionsContainer label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #555;
+    cursor: pointer;
+}
+.optionsContainer input[type="checkbox"] {
+    margin-right: 10px;
+}
