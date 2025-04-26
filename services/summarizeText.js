@@ -119,6 +119,12 @@ export async function summarizeText(articleText, types) {
         parsedFinal = {};
     }
 
+    console.log('return values', {
+        summary: finalSummary.trim(),
+        keyPoints: parsedFinal.keyPoints || [],
+        suggestedTitle: parsedFinal.suggestedTitle || '',
+    });
+
     return {
         summary: finalSummary.trim(),
         keyPoints: parsedFinal.keyPoints || [],

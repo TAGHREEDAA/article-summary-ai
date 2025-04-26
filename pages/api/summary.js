@@ -4,27 +4,31 @@ import {summarizeText} from '../../services/summarizeText';
 async function generateFakeSummary(types) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
 
-    let fakeSummary = '';
+    let fakeResult = {
+        summary: '',
+        keyPoints: [],
+        suggestedTitle: ''
+    };
 
     if (types.includes('simple')) {
-        fakeSummary += 'This is a simple summary of the article.\<br>';
+        fakeResult.summary = 'This is a simple summary of the article.';
     }
 
     if (types.includes('keyPoints')) {
-        fakeSummary += 'Key Points: \<br>';
-        fakeSummary += '<ul>';
-        fakeSummary += '<li>Point 1</li>';
-        fakeSummary += '<li>Point 2</li>';
-        fakeSummary += '<li>Point 3</li>';
-        fakeSummary += '</ul>';
+        fakeResult.keyPoints = [
+            'Point 1: Important insight from the article.',
+            'Point 2: Another key aspect to consider.',
+            'Point 3: Final takeaway from the article.'
+        ];
     }
 
     if (types.includes('suggestTitle')) {
-        fakeSummary += 'Suggested Title: "The Future of AI in Tech"\<br>';
+        fakeResult.suggestedTitle = 'The Future of AI in Tech';
     }
 
-    return fakeSummary;
+    return fakeResult;
 }
+
 
 async function generateRealSummary(url, types) {
     const articleText = await fetchArticleText(url);
@@ -44,11 +48,12 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid request data.' });
         }
 
-        let summary = await generateRealSummary(url, types);
-        // let summary = process.env.NODE_ENV !== "production" ?
-        //     await generateFakeSummary(types) : await generateRealSummary(url, types);
+        // let summary = await generateRealSummary(url, types);
+        let summary = process.env.NODE_ENV !== "production" ?
+            await generateFakeSummary(types) : await generateRealSummary(url, types);
 
-        res.status(200).json({ "summary": summary });
+        console.log('inside summary.js ', summary);
+        res.status(200).json(summary);
 
     } catch (err) {
         console.error("Error:", err.message);
