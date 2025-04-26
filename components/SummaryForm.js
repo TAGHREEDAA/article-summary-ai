@@ -3,7 +3,7 @@ import SummaryOptions from './SummaryOptions';
 import styles from '../styles/SummaryForm.module.css';
 
 export default function SummaryForm() {
-    const [url, setUrl] = useState('https://www.bbc.com/news/world-65249871');
+    const [url, setUrl] = useState('https://www.bbc.com/news/live/c62jldpz9wyt');
     const [summary, setSummary] = useState('');
     const [loading, setLoading] = useState(false);
     const [lastUrl, setLastUrl] = useState('');
@@ -86,7 +86,7 @@ export default function SummaryForm() {
             <SummaryOptions selectedOptions={selectedOptions} onChange={handleOptionChange}/>
 
             <button type="submit" className={styles.button}
-                    disabled={loading || !isValidUrl(url)|| selectedOptions.length === 0}>
+                    disabled={loading || !isValidUrl(url) || selectedOptions.length === 0}>
                 {loading ? 'Summarizing...' : 'Summarize'}
             </button>
 
@@ -95,6 +95,10 @@ export default function SummaryForm() {
 
         <h3>Summary:</h3>
         {loading && <p>Loading summary...</p>}
-        {!loading && summary && <p className={styles.summary}>{summary}</p>}
+        {!loading && summary && <div
+            className={styles.summary}
+            dangerouslySetInnerHTML={{__html: summary}}
+        />}
+
     </div>);
 }

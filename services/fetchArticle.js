@@ -14,5 +14,7 @@ export async function fetchArticleText(url) {
     text += $(elem).text() + ' ';
   });
 
+  console.log("Article text fetched successfully.");
+
   return text;
 }
