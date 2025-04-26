@@ -47,7 +47,6 @@ export default async function handler(req, res) {
         let summary = process.env.NODE_ENV !== "production" ?
             await generateFakeSummary(types) : await generateRealSummary(url, types);
 
-        console.log(summary);
         res.status(200).json({ "summary": summary });
 
     } catch (err) {
