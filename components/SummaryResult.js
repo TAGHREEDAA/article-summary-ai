@@ -5,7 +5,7 @@ export default function SummaryResult({ summaryData, loading }) {
         return <p>Loading summary...</p>;
     }
 
-    if (!summaryData || (!summaryData.summary && !summaryData.keyPoints.length && !summaryData.suggestedTitle)) {
+    if (!summaryData || (!summaryData.summary && !summaryData.keyPoints && !summaryData.suggestedTitle)) {
         return null; // لا تعرض شيء لو مفيش بيانات
     }
 

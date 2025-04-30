@@ -4,7 +4,7 @@ import SummaryResult from './SummaryResult';
 import styles from '../styles/SummaryForm.module.css';
 
 export default function SummaryForm() {
-    const [url, setUrl] = useState('https://www.bbc.com/news/live/c62jldpz9wyt');
+    const [url, setUrl] = useState('https://jamesclear.com/atomic-habits');
     const [loading, setLoading] = useState(false);
     const [lastUrl, setLastUrl] = useState('');
     const [selectedOptions, setSelectedOptions] = useState([]);
