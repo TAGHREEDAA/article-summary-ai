@@ -32,7 +32,7 @@ async function generateFakeSummary(types) {
 
 async function generateRealSummary(url, types) {
     const articleText = await fetchArticleText(url);
-    return await summarizeText(articleText.slice(0, 3000), types);
+    return await summarizeText(url, articleText.slice(0, 3000), types);
 }
 
 
@@ -52,7 +52,6 @@ export default async function handler(req, res) {
         let summary = process.env.NODE_ENV !== "production" ?
             await generateFakeSummary(types) : await generateRealSummary(url, types);
 
-        console.log('inside summary.js ', summary);
         res.status(200).json(summary);
 
     } catch (err) {

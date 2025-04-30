@@ -1,6 +1,7 @@
 import {ChatOpenAI} from '@langchain/openai';
 import {PromptTemplate} from '@langchain/core/prompts';
 import {RunnableSequence} from '@langchain/core/runnables';
+import { generateEmbedding, saveArticleEmbeddings } from './embeddingService';
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
 
 const llm = new ChatOpenAI({
@@ -73,8 +74,11 @@ Return the result in JSON format:
     );
 }
 
-export async function summarizeText(articleText, types) {
-    console.log('summarizeText article length:', articleText.length);
+export async function summarizeText(url, articleText, types) {
+    console.log('NEXT_PUBLIC_SUPABASE_URL', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+    // console.log('summarizeText article length:', articleText.length);
 
     // Step 1: Split the text into manageable chunks
     const splitter = new RecursiveCharacterTextSplitter({
@@ -87,10 +91,17 @@ export async function summarizeText(articleText, types) {
     // Step 2: Summarize each chunk progressively using memory
     let previousSummary = '';
     let finalSummary = '';
+    const embeddingsArray = [];
+
 
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         const isFirstChunk = i === 0;
+
+
+        // Generate embedding for the chunk
+        const embedding = await generateEmbedding(chunk.pageContent);
+        embeddingsArray.push({chunkIndex: i, embedding});
 
         const prompt = buildPromptWithMemory(previousSummary, isFirstChunk);
         const chain = RunnableSequence.from([prompt, llm]);
@@ -105,6 +116,9 @@ export async function summarizeText(articleText, types) {
         finalSummary = content;
     }
 
+
+    await saveArticleEmbeddings(url, embeddingsArray);
+
     // Step 3: Extract Key Points + Suggested Title from the final summary
     const extractionPrompt = buildExtractionPrompt(types);
     const extractChain = RunnableSequence.from([extractionPrompt, llm]);
@@ -118,12 +132,6 @@ export async function summarizeText(articleText, types) {
         console.error("Failed to parse final JSON:", err.message);
         parsedFinal = {};
     }
-
-    console.log('return values', {
-        summary: finalSummary.trim(),
-        keyPoints: parsedFinal.keyPoints || [],
-        suggestedTitle: parsedFinal.suggestedTitle || '',
-    });
 
     return {
         summary: finalSummary.trim(),
